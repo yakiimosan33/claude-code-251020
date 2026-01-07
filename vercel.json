@@ -15,9 +15,5 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
-  ],
-  "env": {
-    "APP_PASSWORD": "@app_password",
-    "JWT_SECRET": "@jwt_secret"
-  }
+  ]
 }

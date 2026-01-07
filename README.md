@@ -85,17 +85,47 @@ npm install -g vercel
 2. Vercelダッシュボードで「New Project」
 3. GitHubリポジトリを選択してインポート
 
-### 4. 環境変数の設定
+### 4. 環境変数の設定 ⚠️ 重要
 
-Vercelダッシュボードで以下の環境変数を設定：
+Vercelダッシュボードで以下の環境変数を**必ず**設定してください：
 
-- `APP_PASSWORD`: `ai-teme-music26`
-- `JWT_SECRET`: `your-very-long-random-secret-key`
+| 変数名 | 値 | 説明 |
+|--------|-----|------|
+| `APP_PASSWORD` | `ai-teme-music26` | ログインパスワード |
+| `JWT_SECRET` | `your-random-secret-key` | JWT署名用シークレット（ランダムな長い文字列） |
 
-**設定手順:**
-1. Vercelプロジェクトの「Settings」→「Environment Variables」
-2. 上記の変数を追加
-3. 「Production」、「Preview」、「Development」すべてにチェック
+**詳細な設定手順:**
+
+1. **Vercelプロジェクトページを開く**
+   - デプロイ後、プロジェクトのダッシュボードに移動
+
+2. **Settings タブをクリック**
+
+3. **左サイドバーから「Environment Variables」を選択**
+
+4. **環境変数を追加**
+
+   **APP_PASSWORD の追加:**
+   - Name: `APP_PASSWORD`
+   - Value: `ai-teme-music26`
+   - Environment: `Production`, `Preview`, `Development` すべてにチェック
+   - 「Save」をクリック
+
+   **JWT_SECRET の追加:**
+   - Name: `JWT_SECRET`
+   - Value: 強力なランダム文字列（例: `openssl rand -base64 32` で生成）
+   - Environment: `Production`, `Preview`, `Development` すべてにチェック
+   - 「Save」をクリック
+
+5. **環境変数を追加したら必ず再デプロイ**
+   - 「Deployments」タブに戻る
+   - 最新のデプロイの右側の「...」メニューをクリック
+   - 「Redeploy」を選択
+
+**⚠️ 注意事項:**
+- 環境変数を追加・変更した後は**必ず再デプロイ**が必要です
+- JWT_SECRETは本番環境では必ず強力なランダム文字列を使用してください
+- これらの環境変数がないとログインできません
 
 ### 5. デプロイ
 
@@ -340,9 +370,11 @@ JWTトークンの検証を行います。
 
 ### Vercelでログインできない場合
 
-1. **環境変数の確認**
+1. **環境変数の確認（最重要）**
    - Vercelダッシュボードで`APP_PASSWORD`と`JWT_SECRET`が設定されているか確認
-   - 再デプロイが必要な場合がある（環境変数変更後）
+   - Settings → Environment Variables で両方の変数が存在するか確認
+   - **環境変数を追加・変更した後は必ず再デプロイが必要**
+   - Deployments → 最新のデプロイ → ... → Redeploy
 
 2. **ブラウザのコンソールでエラーを確認**
    - F12キーで開発者ツールを開く
@@ -394,17 +426,28 @@ JWTトークンの検証を行います。
 
 ### Vercelデプロイが失敗する場合
 
-1. **ビルドログを確認**
+1. **環境変数エラー: "references Secret which does not exist"**
+   - **原因**: vercel.jsonで`@secret_name`形式で環境変数を参照している
+   - **解決策**:
+     - vercel.jsonから`env`セクションを削除（最新版では削除済み）
+     - Vercelダッシュボードから環境変数を直接設定
+     - 最新のコードをプルして再デプロイ
+
+2. **ビルドログを確認**
    - Vercelダッシュボードでデプロイのログを確認
+   - エラーメッセージから原因を特定
 
-2. **package.jsonの確認**
+3. **package.jsonの確認**
    - 必要な依存関係がすべて記載されているか確認
+   - `express`, `cors`, `jsonwebtoken`, `dotenv` が含まれているか
 
-3. **vercel.jsonの確認**
+4. **vercel.jsonの確認**
    - 構文エラーがないか確認
+   - JSONとして正しい形式か検証
 
-4. **再デプロイ**
+5. **再デプロイ**
    - Vercelダッシュボードから「Redeploy」を実行
+   - または、Gitにプッシュして自動デプロイをトリガー
 
 ## ライセンス
 
