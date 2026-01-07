@@ -1,101 +1,73 @@
-// 認証システム
+// 認証システム（サーバーAPI連携版）
 (function() {
     'use strict';
 
-    // セキュリティ設定
+    // 設定
     const CONFIG = {
-        // パスワードのハッシュ（SHA-256）: ai-teme-music26
-        PASSWORD_HASH: '06c687879bf891c7c430b9d0fc47d30ff6fee41cc88c742c47f515f4e26af064',
-        MAX_ATTEMPTS: 5,
-        LOCKOUT_TIME: 300000, // 5分
+        API_BASE_URL: window.location.origin,
+        SESSION_KEY: 'musicai_auth_token',
         SESSION_TIMEOUT: 3600000, // 1時間
-        SESSION_KEY: 'musicai_auth_session',
-        ATTEMPTS_KEY: 'musicai_login_attempts',
-        LOCKOUT_KEY: 'musicai_lockout_until'
     };
 
-    // SHA-256ハッシュ関数（簡易版）
-    async function hashPassword(password) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
-    }
-
-    // ログイン試行回数チェック
-    function checkLockout() {
-        const lockoutUntil = localStorage.getItem(CONFIG.LOCKOUT_KEY);
-        if (lockoutUntil) {
-            const lockoutTime = parseInt(lockoutUntil);
-            if (Date.now() < lockoutTime) {
-                const remainingMinutes = Math.ceil((lockoutTime - Date.now()) / 60000);
-                return {
-                    locked: true,
-                    message: `アカウントがロックされています。${remainingMinutes}分後に再試行してください。`
-                };
-            } else {
-                // ロックアウト期間が終了
-                localStorage.removeItem(CONFIG.LOCKOUT_KEY);
-                localStorage.removeItem(CONFIG.ATTEMPTS_KEY);
+    // APIリクエストヘルパー
+    async function apiRequest(endpoint, method = 'GET', data = null) {
+        const options = {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
             }
-        }
-        return { locked: false };
-    }
-
-    // ログイン試行を記録
-    function recordLoginAttempt(success) {
-        if (success) {
-            localStorage.removeItem(CONFIG.ATTEMPTS_KEY);
-            localStorage.removeItem(CONFIG.LOCKOUT_KEY);
-            return;
-        }
-
-        let attempts = parseInt(localStorage.getItem(CONFIG.ATTEMPTS_KEY) || '0');
-        attempts++;
-        localStorage.setItem(CONFIG.ATTEMPTS_KEY, attempts.toString());
-
-        if (attempts >= CONFIG.MAX_ATTEMPTS) {
-            const lockoutUntil = Date.now() + CONFIG.LOCKOUT_TIME;
-            localStorage.setItem(CONFIG.LOCKOUT_KEY, lockoutUntil.toString());
-            return {
-                locked: true,
-                message: `ログイン試行回数が上限に達しました。5分後に再試行してください。`
-            };
-        }
-
-        return {
-            locked: false,
-            remainingAttempts: CONFIG.MAX_ATTEMPTS - attempts
         };
+
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
+
+        try {
+            const response = await fetch(`${CONFIG.API_BASE_URL}${endpoint}`, options);
+            const result = await response.json();
+            return { success: response.ok, data: result, status: response.status };
+        } catch (error) {
+            console.error('API request failed:', error);
+            return { success: false, error: error.message };
+        }
     }
 
-    // セッションを作成
-    function createSession() {
+    // トークンを保存
+    function saveToken(token) {
         const sessionData = {
-            authenticated: true,
+            token: token,
             timestamp: Date.now(),
             expiresAt: Date.now() + CONFIG.SESSION_TIMEOUT
         };
         sessionStorage.setItem(CONFIG.SESSION_KEY, JSON.stringify(sessionData));
     }
 
-    // セッションを検証
-    function validateSession() {
+    // トークンを取得
+    function getToken() {
         const sessionData = sessionStorage.getItem(CONFIG.SESSION_KEY);
-        if (!sessionData) return false;
+        if (!sessionData) return null;
 
         try {
             const session = JSON.parse(sessionData);
+            // 有効期限チェック
             if (Date.now() > session.expiresAt) {
                 sessionStorage.removeItem(CONFIG.SESSION_KEY);
-                return false;
+                return null;
             }
-            return session.authenticated === true;
+            return session.token;
         } catch (e) {
-            return false;
+            return null;
         }
+    }
+
+    // セッションを検証
+    async function validateSession() {
+        const token = getToken();
+        if (!token) return false;
+
+        // サーバーでトークンを検証
+        const result = await apiRequest('/api/verify', 'POST', { token });
+        return result.success && result.data.valid;
     }
 
     // ログアウト
@@ -105,13 +77,14 @@
     }
 
     // ページ保護（メインページ用）
-    function protectPage() {
+    async function protectPage() {
         // login.htmlの場合は保護しない
         if (window.location.pathname.includes('login.html')) {
             return;
         }
 
-        if (!validateSession()) {
+        const isValid = await validateSession();
+        if (!isValid) {
             window.location.href = 'login.html';
         }
     }
@@ -127,43 +100,37 @@
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // ロックアウトチェック
-            const lockoutStatus = checkLockout();
-            if (lockoutStatus.locked) {
-                errorMessage.textContent = lockoutStatus.message;
-                errorMessage.style.display = 'block';
-                return;
-            }
-
             const password = passwordInput.value;
 
-            try {
-                // パスワードをハッシュ化して検証
-                const hashedPassword = await hashPassword(password);
+            // ログインボタンを無効化
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = '認証中...';
 
-                if (hashedPassword === CONFIG.PASSWORD_HASH) {
+            try {
+                // サーバーにログインリクエストを送信
+                const result = await apiRequest('/api/login', 'POST', { password });
+
+                if (result.success && result.data.success) {
                     // ログイン成功
-                    recordLoginAttempt(true);
-                    createSession();
+                    saveToken(result.data.token);
                     window.location.href = 'index.html';
                 } else {
                     // ログイン失敗
-                    const attemptResult = recordLoginAttempt(false);
-
-                    if (attemptResult.locked) {
-                        errorMessage.textContent = attemptResult.message;
-                    } else {
-                        errorMessage.textContent = `パスワードが正しくありません（残り試行回数: ${attemptResult.remainingAttempts}回）`;
-                    }
-
+                    errorMessage.textContent = result.data.message || 'ログインに失敗しました';
                     errorMessage.style.display = 'block';
                     passwordInput.value = '';
                     passwordInput.focus();
                 }
             } catch (error) {
-                console.error('認証エラー:', error);
-                errorMessage.textContent = '認証処理中にエラーが発生しました';
+                console.error('Login error:', error);
+                errorMessage.textContent = 'サーバーとの通信に失敗しました';
                 errorMessage.style.display = 'block';
+            } finally {
+                // ボタンを再度有効化
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
             }
         });
 
@@ -174,18 +141,19 @@
     }
 
     // 初期化
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
         // ログインページの場合
         if (window.location.pathname.includes('login.html')) {
             // 既にログイン済みの場合はメインページへ
-            if (validateSession()) {
+            const isValid = await validateSession();
+            if (isValid) {
                 window.location.href = 'index.html';
                 return;
             }
             setupLoginForm();
         } else {
             // メインページの場合は保護
-            protectPage();
+            await protectPage();
         }
     });
 
