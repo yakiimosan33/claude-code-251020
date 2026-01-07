@@ -4,8 +4,8 @@
 
     // セキュリティ設定
     const CONFIG = {
-        // パスワードのハッシュ（SHA-256相当）
-        PASSWORD_HASH: 'f8e9a7c6d4b2e1a5c8f7d6e5b4a3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5',
+        // パスワードのハッシュ（SHA-256）: ai-teme-music26
+        PASSWORD_HASH: '06c687879bf891c7c430b9d0fc47d30ff6fee41cc88c742c47f515f4e26af064',
         MAX_ATTEMPTS: 5,
         LOCKOUT_TIME: 300000, // 5分
         SESSION_TIMEOUT: 3600000, // 1時間
