@@ -9,74 +9,141 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
     color: #333;
     line-height: 1.6;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #f5f5f5;
     min-height: 100vh;
+}
+
+/* ヘッダー */
+.header {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo-icon {
+    width: 24px;
+    height: 24px;
+    color: #4a90e2;
+}
+
+.logo-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.nav {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: #4a90e2;
+}
+
+/* ヒーローセクション */
+.hero {
+    background: linear-gradient(135deg, #1e5bbf 0%, #4a90e2 50%, #7db8ec 100%);
+    padding: 3rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-logo {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
-.login-container {
+.hero-icon {
+    width: 48px;
+    height: 48px;
+    color: white;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.waveform {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 100%;
+    height: 100%;
+    opacity: 0.3;
+    z-index: 1;
+}
+
+.wave-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* ログインフォーム */
+.login-container {
     max-width: 450px;
-    padding: 20px;
+    margin: -60px auto 4rem;
+    padding: 0 20px;
+    position: relative;
+    z-index: 10;
 }
 
 .login-box {
     background: white;
-    border-radius: 20px;
-    padding: 3rem 2.5rem;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.logo-section {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.logo-icon {
-    width: 48px;
-    height: 48px;
-    color: #5c6bc0;
-    margin-bottom: 0.5rem;
-}
-
-.logo-text {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #5c6bc0;
-    margin: 0;
+    border-radius: 12px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .login-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #2c3e50;
     text-align: center;
-    margin-bottom: 0.5rem;
-}
-
-.login-subtitle {
-    text-align: center;
-    color: #666;
-    font-size: 0.95rem;
     margin-bottom: 2rem;
 }
 
 .login-form {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .form-group {
@@ -86,99 +153,185 @@ body {
 .form-label {
     display: block;
     font-weight: 600;
-    color: #2c3e50;
+    color: #333;
     margin-bottom: 0.5rem;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .form-input {
     width: 100%;
-    padding: 0.9rem 1rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
     font-size: 1rem;
     transition: all 0.3s;
     font-family: inherit;
+    background: #f8f9fa;
 }
 
 .form-input:focus {
     outline: none;
-    border-color: #5c6bc0;
-    box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.1);
+    border-color: #4a90e2;
+    background: white;
 }
 
 .form-input:hover {
-    border-color: #bdbdbd;
+    border-color: #999;
 }
 
 .error-message {
     background: #ffebee;
     color: #c62828;
     padding: 0.8rem 1rem;
-    border-radius: 8px;
+    border-radius: 6px;
     margin-bottom: 1rem;
     font-size: 0.9rem;
     border-left: 4px solid #c62828;
-    animation: shake 0.4s ease-in-out;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
 }
 
 .login-button {
     width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 0.9rem;
+    background: #4a90e2;
     color: white;
     border: none;
-    border-radius: 10px;
-    font-size: 1.05rem;
+    border-radius: 30px;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    margin-bottom: 1rem;
 }
 
 .login-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    background: #3a7bc8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
 }
 
 .login-button:active {
     transform: translateY(0);
 }
 
-.security-notice {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    color: #757575;
-    font-size: 0.85rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e0e0e0;
+.register-link {
+    text-align: center;
 }
 
-.lock-icon {
-    width: 16px;
-    height: 16px;
-    color: #757575;
+.register-link a {
+    color: #4a90e2;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.register-link a:hover {
+    color: #3a7bc8;
+    text-decoration: underline;
+}
+
+/* フッター */
+.footer {
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    padding: 2rem 0;
+    margin-top: auto;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.copyright {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-link {
+    width: 24px;
+    height: 24px;
+    color: #666;
+    transition: color 0.3s;
+}
+
+.social-link:hover {
+    color: #4a90e2;
+}
+
+.social-link svg {
+    width: 100%;
+    height: 100%;
 }
 
 /* レスポンシブ */
+@media (max-width: 768px) {
+    .nav {
+        gap: 1rem;
+    }
+
+    .nav-link {
+        font-size: 0.85rem;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .hero-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .login-container {
+        margin-top: -40px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+}
+
 @media (max-width: 480px) {
+    .header-content {
+        padding: 1rem;
+    }
+
+    .logo-text {
+        font-size: 0.9rem;
+    }
+
+    .nav {
+        gap: 0.5rem;
+    }
+
+    .nav-link {
+        font-size: 0.75rem;
+    }
+
+    .hero {
+        padding: 2rem 1rem;
+    }
+
+    .hero-title {
+        font-size: 1.5rem;
+    }
+
     .login-box {
         padding: 2rem 1.5rem;
     }
 
     .login-title {
-        font-size: 1.5rem;
-    }
-
-    .logo-text {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
     }
 }
