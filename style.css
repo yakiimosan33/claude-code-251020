@@ -264,6 +264,18 @@ section {
     height: 60px;
 }
 
+.character-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.team-card:hover .character-image {
+    transform: scale(1.05);
+}
+
 .card-title {
     font-size: 1.2rem;
     font-weight: 600;
